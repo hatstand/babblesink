@@ -55,5 +55,10 @@ public class GetCookieTask extends AsyncTask<String, Integer, Cookie> {
     }
     return null;
   }
+  
+  @Override
+  protected void onPostExecute(Cookie cookie) {
+    httpClient.close();
+  }
 
 }

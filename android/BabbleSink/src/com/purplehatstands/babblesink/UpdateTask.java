@@ -53,5 +53,9 @@ public class UpdateTask extends AsyncTask<Object, Integer, Boolean> {
     
     return false;
   }
-
+  
+  @Override
+  protected void onPostExecute(Boolean result) {
+    httpClient.close();
+  }
 }
