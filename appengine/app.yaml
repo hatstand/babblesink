@@ -1,0 +1,10 @@
+application: ovraiment
+version: dev
+runtime: python
+api_version: 1
+
+handlers:
+- url: /et.*
+  login: required
+  secure: always
+  script: ovraiment.py

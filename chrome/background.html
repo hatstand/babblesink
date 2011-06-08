@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-  <script src="https://thinkofthefurniture.appspot.com/_ah/channel/jsapi"></script>
+  <script src="https://ovraiment.appspot.com/_ah/channel/jsapi"></script>
   <script>
     var xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function(data) {
@@ -11,7 +11,7 @@
         }
       }
     }
-    xhr.open("GET", "https://thinkofthefurniture.appspot.com/et");
+    xhr.open("GET", "https://ovraiment.appspot.com/et");
     xhr.send();
 
     function connect(channelToken) {
@@ -26,7 +26,7 @@
     function onOpened() {
       console.log("Opened");
       var xhr = new XMLHttpRequest();
-      xhr.open("POST", "https://thinkofthefurniture.appspot.com/et/ping");
+      xhr.open("POST", "https://ovraiment.appspot.com/et/ping");
       xhr.send();
     }
 

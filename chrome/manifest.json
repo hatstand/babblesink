@@ -4,7 +4,7 @@
   "description": "",
   "background_page": "background.html",
   "permissions": [
-    "https://thinkofthefurniture.appspot.com/",
+    "https://ovraiment.appspot.com/",
     "notifications"
   ]
 }
