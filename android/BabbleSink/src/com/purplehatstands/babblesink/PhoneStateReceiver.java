@@ -17,7 +17,15 @@ public class PhoneStateReceiver extends BroadcastReceiver {
       // Phone has started ringing.
       String number = intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER);
       Log.d(this.getClass().getCanonicalName(), "Phone is ringing! from:" + number);
+      sendPhoneUpdate(context, newState, number);
     }
+  }
+  
+  private void sendPhoneUpdate(Context context, String state, String number) {
+    Intent intent = new Intent();
+    intent.putExtra("state", state);
+    intent.putExtra("number", number);
+    PingerService.runIntentInService(context, intent);
   }
 
 }
