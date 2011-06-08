@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+  <script src="https://thinkofthefurniture.appspot.com/_ah/channel/jsapi"></script>
+  <script>
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function(data) {
+      if (xhr.readyState == 4) {
+        if (xhr.status == 200) {
+          console.log(xhr.responseText);
+          connect(xhr.responseText);
+        }
+      }
+    }
+    xhr.open("GET", "https://thinkofthefurniture.appspot.com/et");
+    xhr.send();
+
+    function connect(channelToken) {
+      var channel = new goog.appengine.Channel(channelToken);
+      var socket = channel.open();
+      socket.onopen = onOpened;
+      socket.onmessage = onMessage;
+      socket.onerror = onError;
+      socket.onclose = onClose;
+    }
+
+    function onOpened() {
+      console.log("Opened");
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", "https://thinkofthefurniture.appspot.com/et/ping");
+      xhr.send();
+    }
+
+    function onMessage(message) {
+      console.log("Message:" + message.data);
+    }
+
+    function onError(error) {
+      console.log("Error:" + error.code + ":" + error.description);
+    }
+
+    function onClose() {
+      console.log("Closed");
+    }
+  </script>
+  <body>
+    <div>Hello World!</div>
+  </body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "name": "ET Chrome Phone",
+  "version": "0.1",
+  "description": "",
+  "background_page": "background.html",
+  "permissions": [
+    "https://thinkofthefurniture.appspot.com/",
+    "notifications"
+  ]
+}
