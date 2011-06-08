@@ -13,9 +13,10 @@ public class PhoneStateReceiver extends BroadcastReceiver {
     Log.d(this.getClass().getCanonicalName(), "Phone state changed!");
     String newState = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
     Log.d(this.getClass().getCanonicalName(), "Phone state changed to:" + newState);
-    if (newState == TelephonyManager.EXTRA_STATE_RINGING) {
+    if (newState.equals(TelephonyManager.EXTRA_STATE_RINGING)) {
       // Phone has started ringing.
-      Log.d(this.getClass().getCanonicalName(), "Phone is ringing!");
+      String number = intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER);
+      Log.d(this.getClass().getCanonicalName(), "Phone is ringing! from:" + number);
     }
   }
 
