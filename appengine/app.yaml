@@ -8,3 +8,8 @@ handlers:
   login: required
   secure: always
   script: ovraiment.py
+
+- url: /c2dm/.*
+  login: required
+  secure: always
+  script: c2dm.py
