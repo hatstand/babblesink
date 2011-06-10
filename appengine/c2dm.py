@@ -3,6 +3,7 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
 from google.appengine.dist import use_library
 use_library('django', '1.2')
 
+from google.appengine.api import urlfetch
 from google.appengine.api import users
 from google.appengine.ext import db
 from google.appengine.ext import webapp
@@ -13,9 +14,15 @@ from django.utils import simplejson
 
 import logging
 import os
+import random
+import urllib
 
 import models
 
+CLIENTLOGIN_URL = 'https://www.google.com/accounts/ClientLogin'
+C2DM_URL = 'https://android.apis.google.com/c2dm/send'
+
+C2DM_PASSWORD = 'foobar'
 
 class RegisterDevice(webapp.RequestHandler):
   def post(self):
@@ -51,10 +58,54 @@ class ListDevices(webapp.RequestHandler):
     self.response.out.write(template.render(path, {'devices': devices}))
 
 
+class PingDevice(webapp.RequestHandler):
+  def post(self):
+    user = users.get_current_user()
+    id = self.request.get('registration_id')
+    params = {
+      'accountType': 'HOSTED',
+      'Email': 'c2dm@clementine-player.org',
+      'Passwd': C2DM_PASSWORD,
+      'service': 'ac2dm',
+      'source': 'com.purplehatstands.babblesink',
+    }
+    params_string = urllib.urlencode(params)
+    url = CLIENTLOGIN_URL
+    result = urlfetch.fetch(url=url, payload=params_string, method=urlfetch.POST)
+    if result.status_code != 200:
+      self.error(500)
+      logging.error('Error authenticating to ClientLogin: %s', result.content)
+      return
+
+    for line in result.content.split('\n'):
+      mapping = line.split('=')
+      if mapping[0] == 'Auth':
+        auth_token = mapping[1]
+        break;
+
+    logging.info('Got ClientLogin token: %s', auth_token)
+    c2dm_params = {
+      'registration_id': id,
+      'collapse_key': str(random.random()),
+      'data.method': 'whereareyou',
+    }
+    c2dm_params_string = urllib.urlencode(c2dm_params)
+    response = urlfetch.fetch(
+        url=C2DM_URL,
+        payload=c2dm_params_string,
+        method=urlfetch.POST,
+        headers={'Authorization': 'GoogleLogin auth=' + auth_token})
+    if response.status_code != 200:
+      logging.error('Failed to send c2dm message: %s', response.content)
+
+    logging.info(response.content)
+
+
 application = webapp.WSGIApplication(
     [
         (r'/c2dm/register', RegisterDevice),
         (r'/c2dm/list', ListDevices),
+        (r'/c2dm/ping', PingDevice),
     ],
     debug=True)
 

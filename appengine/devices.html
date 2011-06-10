@@ -11,6 +11,10 @@
         <div>Brand: {{ device.brand }}</div>
         <div>Device: {{ device.device }}</div>
         <div>Model: {{ device.model }}</div>
+        <form method="post" action="/c2dm/ping">
+          <input type="hidden" name="registration_id" value="{{ device.registration_id }}"></input>
+          <input type="submit"></input>
+        </form>
       </div>
     {% endfor %}
   </body>
