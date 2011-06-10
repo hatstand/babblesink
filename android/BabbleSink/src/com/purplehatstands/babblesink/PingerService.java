@@ -1,27 +1,28 @@
 package com.purplehatstands.babblesink;
 
 import java.io.IOException;
-import java.util.concurrent.ExecutionException;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.apache.http.cookie.Cookie;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.message.BasicNameValuePair;
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
-import android.accounts.AuthenticatorException;
-import android.accounts.OperationCanceledException;
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
 import android.os.PowerManager;
-import android.util.Log;
 
 public class PingerService extends IntentService {
   private static final String TAG = PingerService.class.getCanonicalName();
   private static PowerManager.WakeLock wakeLock;
   
+  private AppengineClient client;
+  
   
   public PingerService() {
     super("PingerService");
+    client = new AppengineClient(this);
   }
 
   @Override
@@ -34,41 +35,15 @@ public class PingerService extends IntentService {
   }
   
   private void sendUpdate(Intent intent, int retries) {
-    final AccountManager accountManager = (AccountManager)getSystemService(ACCOUNT_SERVICE);
-    final Account googleAccount = accountManager.getAccountsByType("com.google")[0];
     final String state = intent.getStringExtra("state");
     final String number = intent.getStringExtra("number");
+    HttpPost post = new HttpPost("https://ovraiment.appspot.com/et/phone");
+    List<NameValuePair> postParams = new ArrayList<NameValuePair>();
+    postParams.add(new BasicNameValuePair("state", state));
+    postParams.add(new BasicNameValuePair("number", number));
     try {
-      String authToken = accountManager.blockingGetAuthToken(googleAccount, "ah", true);
-      Cookie cookie = new GetCookieTask().execute(authToken).get();
-      if (cookie == null) {
-        // Retry once; auth token may have expired.
-        if (retries > 0) {
-          return;
-        }
-        accountManager.invalidateAuthToken("com.google", authToken);
-        sendUpdate(intent, ++retries);
-      }
-      
-      if (cookie != null) {
-        Log.d(TAG, "Got cookie:" + cookie.toString());
-        new UpdateTask().execute(cookie, state, number);
-      } else {
-        Log.d(TAG, "Failed to get cookie");
-      }
-    } catch (OperationCanceledException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    } catch (AuthenticatorException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      client.sendRequest(post);
     } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    } catch (InterruptedException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    } catch (ExecutionException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
