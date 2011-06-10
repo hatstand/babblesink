@@ -34,9 +34,9 @@ public class C2DMService extends IntentService {
 
   @Override
   protected void onHandleIntent(Intent intent) {
-    client = new AppengineClient(this);
     Log.d(TAG, "onHandleIntent");
     try {
+      client = new AppengineClient(this);
       if (intent.getAction().equals("com.google.android.c2dm.intent.REGISTRATION")) {
         handleRegistration(intent);
       } else if (intent.getAction().equals("com.google.android.c2dm.intent.RECEIVE")) {
