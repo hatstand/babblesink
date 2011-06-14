@@ -10,6 +10,8 @@ from django.utils import simplejson
 import random
 
 
+MAP_URL = 'http://maps.google.com/maps/api/staticmap?size=400x400&markers=%s,%s&sensor=true'
+
 class ChannelRequestPage(webapp.RequestHandler):
   def get(self):
     user = users.get_current_user()
@@ -47,11 +49,30 @@ class PhoneRinging(webapp.RequestHandler):
     self.response.out.write('OK')
 
 
+class LocationUpdate(webapp.RequestHandler):
+  def post(self):
+    user = users.get_current_user()
+    channel_id = memcache.get(user.email())
+    if channel_id is None:
+      self.error(403)
+      return
+
+    url = MAP_URL % (self.request.get('lat'), self.request.get('lng'))
+    update = {
+      'lat': self.request.get('lat'),
+      'lng': self.request.get('lng'),
+      'url': url,
+    }
+    channel.send_message(channel_id, simplejson.dumps(update))
+    self.response.out.write('OK')
+
+
 application = webapp.WSGIApplication(
   [
     (r'/et', ChannelRequestPage),
     (r'/et/ping', ChannelPingPage),
     (r'/et/phone', PhoneRinging),
+    (r'/et/phone/home', LocationUpdate),
   ],
   debug=True)
 
