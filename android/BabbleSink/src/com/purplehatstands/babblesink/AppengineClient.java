@@ -88,18 +88,18 @@ public class AppengineClient {
     String url = "https://ovraiment.appspot.com/_ah/login?continue=http://localhost/&auth=" + authToken;
     HttpGet get = new HttpGet(url);
     HttpResponse response;
-      response = httpClient.execute(get, httpContext);
-      if (response.getStatusLine().getStatusCode() != 302) {
-        Log.d("Babblesink", "Unexpected status code:" + response.getStatusLine().toString());
-        return false;
+    response = httpClient.execute(get, httpContext);
+    if (response.getStatusLine().getStatusCode() != 302) {
+      Log.d("Babblesink", "Unexpected status code:" + response.getStatusLine().toString());
+      return false;
+    }
+    
+    for (Cookie cookie : cookieStore.getCookies()) {
+      if (cookie.getName().equals("SACSID")) {  // Secure Appengine cookie.
+        Log.d("Babblesink", "Successfully got appengine cookie");
+        return true;
       }
-      
-      for (Cookie cookie : cookieStore.getCookies()) {
-        if (cookie.getName().equals("SACSID")) {  // Secure Appengine cookie.
-          Log.d("Babblesink", "Successfully got appengine cookie");
-          return true;
-        }
-      }
+    }
     return false;
   }
   

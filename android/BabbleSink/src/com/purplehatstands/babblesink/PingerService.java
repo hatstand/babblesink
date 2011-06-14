@@ -1,10 +1,12 @@
 package com.purplehatstands.babblesink;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.message.BasicNameValuePair;
 
@@ -41,6 +43,13 @@ public class PingerService extends IntentService {
     List<NameValuePair> postParams = new ArrayList<NameValuePair>();
     postParams.add(new BasicNameValuePair("state", state));
     postParams.add(new BasicNameValuePair("number", number));
+    try {
+      post.setEntity(new UrlEncodedFormEntity(postParams));
+    } catch (UnsupportedEncodingException e1) {
+      // TODO Auto-generated catch block
+      e1.printStackTrace();
+      return;
+    }
     try {
       client.sendRequest(post);
     } catch (IOException e) {
