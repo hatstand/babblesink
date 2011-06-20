@@ -9,6 +9,8 @@ from django.utils import simplejson
 
 import random
 
+import models
+
 
 MAP_URL = 'http://maps.google.com/maps/api/staticmap?size=400x400&markers=%s,%s&sensor=true'
 
@@ -29,7 +31,16 @@ class ChannelPingPage(webapp.RequestHandler):
       self.error(403)
       return
 
-    channel.send_message(channel_id, 'Hello, World!')
+    query = models.Device.gql('WHERE user = :user', user=user)
+    device = query.get()
+    if device is None:
+      channel.send_message(channel_id, simplejson.dumps(
+          {'error': 'No devices registered'}))
+      self.error(400)
+      return
+
+    channel.send_message(channel_id, simplejson.dumps(
+        {'id': device.registration_id}))
     self.response.out.write('OK')
 
 

@@ -2,6 +2,7 @@
 <html>
   <script src="https://ovraiment.appspot.com/_ah/channel/jsapi"></script>
   <script>
+    var reg_id;
     var xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function(data) {
       if (xhr.readyState == 4) {
@@ -32,6 +33,14 @@
 
     function onMessage(message) {
       console.log("Message:" + message.data);
+      var response = JSON.parse(message.data);
+      if (response.id) {
+        reg_id = response.id;
+      }
+
+      if (response.lat) {
+        chrome.extension.sendRequest({method: "found", map: response.url});
+      }
     }
 
     function onError(error) {
@@ -41,6 +50,17 @@
     function onClose() {
       console.log("Closed");
     }
+
+
+    chrome.extension.onRequest.addListener(
+      function(request, sender, sendResponse) {
+        if (request.method == "ping") {
+          var xhr = new XMLHttpRequest();
+          xhr.open("POST", "https://ovraiment.appspot.com/c2dm/ping");
+          xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+          xhr.send("registration_id=" + reg_id);
+        }
+      });
   </script>
   <body>
     <div>Hello World!</div>

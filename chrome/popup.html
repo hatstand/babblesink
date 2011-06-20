@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script type="text/javascript">
+      function fetchLocation() {
+        chrome.extension.sendRequest({method: 'ping'});
+      }
+
+      chrome.extension.onRequest.addListener(
+          function(request, sender, sendResponse) {
+            console.log('Received message:' + request.method);
+            if (request.method == "found") {
+              document.getElementById('map').setAttribute('src', request.map);
+              document.getElementById('location').style.display = 'block';
+            }
+          });
+    </script>
+    <style type="text/css">
+      #location {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <a href="#" onclick="fetchLocation()">Where's my phone?</a>
+    </div>
+    <div id="location">
+      <img src="foo" id="map" />
+    </div>
+  </body>
+</html>

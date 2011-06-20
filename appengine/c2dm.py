@@ -56,7 +56,12 @@ class ListDevices(webapp.RequestHandler):
 class PingDevice(webapp.RequestHandler):
   def post(self):
     user = users.get_current_user()
-    id = self.request.get('registration_id')
+    reg_id = self.request.get('registration_id')
+    logging.debug('Request: %s', self.request.body)
+    if reg_id is None:
+      self.error(400)
+      return
+    logging.debug('Registration id: %s', reg_id)
     params = {
       'accountType': 'HOSTED',
       'Email': 'c2dm@clementine-player.org',
@@ -64,6 +69,7 @@ class PingDevice(webapp.RequestHandler):
       'service': 'ac2dm',
       'source': 'com.purplehatstands.babblesink',
     }
+    logging.debug('ClientLogin params: %s', params)
     params_string = urllib.urlencode(params)
     url = CLIENTLOGIN_URL
     result = urlfetch.fetch(url=url, payload=params_string, method=urlfetch.POST)
@@ -80,10 +86,11 @@ class PingDevice(webapp.RequestHandler):
 
     logging.info('Got ClientLogin token: %s', auth_token)
     c2dm_params = {
-      'registration_id': id,
+      'registration_id': reg_id,
       'collapse_key': str(random.random()),
       'data.method': 'whereareyou',
     }
+    logging.debug('C2DM params: %s', c2dm_params)
     c2dm_params_string = urllib.urlencode(c2dm_params)
     response = urlfetch.fetch(
         url=C2DM_URL,
